@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de gestión de inventario</title>
+</head>
+
+<body>
+    <h1>Sistema de gestión de inventario</h1>
+
+    <div id="productos">
+        <h2>Productos</h2>
+        <ul id="lista-productos"></ul>
+    </div>
+
+    <div id="formulario-producto">
+        <h2>Agregar producto</h2>
+        <input type="text" id="nombre-producto" placeholder="Nombre">
+        <input type="number" id="precio-producto" placeholder="Precio">
+        <input type="number" id="cantidad-producto" placeholder="Cantidad">
+        <button id="agregar-producto" onclick="agregarProducto()">Agregar</button>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        // Obtener los productos
+        const obtenerProductos = async () => {
+            const response = await axios.get("http://localhost:3000/productos");
+            const productos = response.data;
+            const listaProductos = document.querySelector("#lista-productos");
+            productos.forEach((producto) => {
+                const li = document.createElement("li");
+                li.textContent = producto.nombre;
+                listaProductos.appendChild(li);
+            });
+        };
+
+        // Agregar un producto
+        const agregarProducto = async () => {
+            const nombre = document.querySelector("#nombre-producto").value;
+            const precio = document.querySelector("#precio-producto").value;
+            const cantidad = document.querySelector("#cantidad-producto").value;
+
+            axios.post("http://localhost:3000/productos", {
+                    nombre,
+                    precio,
+                    cantidad,
+            });
+
+            /*const producto = new Producto(nombre, precio, cantidad, new VentaUnitaria());
+            await producto.agregar();*/
+        }
+
+        obtenerProductos()
+    </script>
+</body>
+</html>
