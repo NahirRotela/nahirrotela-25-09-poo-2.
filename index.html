@@ -1,58 +1,98 @@
 <!DOCTYPE html>
 <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tienda en Linea</title>
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Sistema de gestión de inventario</title>
-</head>
-
-<body>
-    <h1>Sistema de gestión de inventario</h1>
+  <body>
+    <h1>Tienda en Linea</h1>
 
     <div id="productos">
-        <h2>Productos</h2>
-        <ul id="lista-productos"></ul>
+      <h2>Productos</h2>
+      <ul id="lista-productos"></ul>
     </div>
 
     <div id="formulario-producto">
-        <h2>Agregar producto</h2>
-        <input type="text" id="nombre-producto" placeholder="Nombre">
-        <input type="number" id="precio-producto" placeholder="Precio">
-        <input type="number" id="cantidad-producto" placeholder="Cantidad">
-        <button id="agregar-producto" onclick="agregarProducto()">Agregar</button>
+      <h2>Agregar producto</h2>
+      <input type="text" id="nombre-producto" placeholder="Nombre" />
+      <input type="number" id="precio-producto" placeholder="Precio" />
+      <input type="number" id="cantidad-producto" placeholder="Cantidad" />
+      <button id="agregar-producto" onclick="agregarProducto()">Agregar</button>
     </div>
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
-        // Obtener los productos
-        const obtenerProductos = async () => {
-            const response = await axios.get("http://localhost:3000/productos");
-            const productos = response.data;
-            const listaProductos = document.querySelector("#lista-productos");
-            productos.forEach((producto) => {
-                const li = document.createElement("li");
-                li.textContent = producto.nombre;
-                listaProductos.appendChild(li);
-            });
+      // Función para actualizar la lista de productos
+      const actualizarListaProductos = (productos) => {
+        const listaProductos = document.querySelector("#lista-productos");
+        listaProductos.innerHTML = ""; // Limpiar la lista antes de actualizar
+
+        productos.forEach((producto) => {
+          const li = document.createElement("li");
+          li.textContent = `Nombre: ${producto.nombre}, Precio: ${producto.precio}, Cantidad: ${producto.cantidad}`;
+
+          console.log(li);
+
+          // Agregar un botón para eliminar el producto
+          const eliminarButton = document.createElement("button");
+          eliminarButton.textContent = "Eliminar";
+          eliminarButton.onclick = () => eliminarProducto(producto.id);
+          li.appendChild(eliminarButton);
+
+          listaProductos.appendChild(li);
+
+          const comprarButton = document.createElement("button");
+          comprarButton.textContent = "Comprar";
+          comprarButton.onclick = () => comprarProducto(producto.id);
+          li.appendChild(comprarButton);
+
+          listaProductos.appendChild(li);
+        });
+      };
+
+      // Obtener los productos
+      const obtenerProductos = async () => {
+        const response = await axios.get("http://localhost:3000/productos");
+        const productos = response.data;
+
+        // Actualizar la lista de productos en la página
+        actualizarListaProductos(productos);
+      };
+
+      // Agregar un producto
+      const agregarProducto = async () => {
+        const nombre = document.querySelector("#nombre-producto").value;
+        const precio = document.querySelector("#precio-producto").value;
+        const cantidad = document.querySelector("#cantidad-producto").value;
+
+        axios.post("http://localhost:3000/productos", {
+          nombre,
+          precio,
+          cantidad,
+        });
+      };
+
+      //Funcion para eliminar un producto
+      function eliminarProducto(productoId) {
+        const eliminarButton = document.createElement("button");
+        eliminarButton.textContent = "Eliminar";
+
+        eliminarButton.onclick = () => {
+          // Lógica para eliminar el producto con el ID productoId
+          eliminarProducto(productoId);
         };
 
-        // Agregar un producto
-        const agregarProducto = async () => {
-            const nombre = document.querySelector("#nombre-producto").value;
-            const precio = document.querySelector("#precio-producto").value;
-            const cantidad = document.querySelector("#cantidad-producto").value;
+        return eliminarButton;
+      }
+      // Función para comprar un producto
+      async function comprarProducto(productoId) {
+        // Llamar a la ruta /comprar/:id con el ID del producto
+        await axios.post(`http://localhost:3000/comprar/${productoId}`);
+        obtenerProductos(); // Actualizar la lista de productos después de la compra
+      }
 
-            axios.post("http://localhost:3000/productos", {
-                    nombre,
-                    precio,
-                    cantidad,
-            });
-
-            /*const producto = new Producto(nombre, precio, cantidad, new VentaUnitaria());
-            await producto.agregar();*/
-        }
-
-        obtenerProductos()
+      obtenerProductos();
     </script>
-</body>
+  </body>
 </html>
